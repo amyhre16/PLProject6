@@ -8,6 +8,7 @@ DEBUG = True
 # Namespace & built-in functions
 
 name = {}
+var = {}
 
 # performs the con operation
 def cons(l):
@@ -64,9 +65,22 @@ name['+'] = add
 
 def minus(l):
     '''Unary minus'''
-    return -l[0]
+    return l[0] - l[1]
 
 name['-'] = minus
+
+def mult(l):
+    return l[0] * l[1]
+
+name['*'] = mult
+
+def div(l):
+    if l[1] != 0:
+        return l[0] / l[1]
+    else:
+        print "Cannot divide by 0."
+
+name['/'] = div
 
 def _print(l):
     print lisp_str(l[0])
@@ -132,6 +146,11 @@ def p_exp_qlist(p):
     'exp : quoted_list'
     p[0] = p[1]
 
+def p_exp_2call(p):
+    'exp : LPAREN call call RPAREN'
+    p[0] = p[3]
+    var.clear()
+
 def p_exp_call(p):
     'exp : call'
     p[0] = p[1]
@@ -176,6 +195,17 @@ def p_item_empty(p):
     'item : empty'
     p[0] = p[1]
 
+def p_call_let(p):
+    'call : LET LPAREN SIMB NUM RPAREN'
+    var[p[3]] = p[4]
+
+def p_call_if(p):
+    '''call : LPAREN IF bool NUM NUM RPAREN'''
+    if p[3]:
+        p[0] = p[4]
+    else:
+        p[0] = p[5]
+
 def p_call(p):
     'call : LPAREN SIMB items RPAREN'
     if DEBUG: print "Calling", p[2], "with", p[3]
@@ -183,7 +213,11 @@ def p_call(p):
 
 def p_atom_simbol(p):
     'atom : SIMB'
-    p[0] = p[1]
+    try:
+        p[0] = var[p[1]]
+    except LookupError:
+        p[0] = p[1]
+
 
 def p_atom_bool(p):
     'atom : bool'

@@ -8,11 +8,11 @@ import ply.lex as lex
 
 # List of token names.
 tokens = ('QUOTE', 'SIMB', 'NUM', 'LPAREN', 'RPAREN', \
-'NIL', 'TRUE', 'FALSE', 'TEXT')
+'NIL', 'TRUE', 'FALSE', 'TEXT', 'LET', 'IF')
 # QUOTE tells it that what's after the '( is not a function
 # Reserved words
 reserved = {
-    'nil' : 'NIL',
+    'nil' : 'NIL', 'let' : 'LET', 'if' : 'IF',
 }
 
 # Regular expression rules for simple tokens
@@ -21,6 +21,7 @@ t_RPAREN = r'\)'
 t_QUOTE = r'\''
 t_TRUE = r'\#t'
 t_FALSE = r'\#f'
+
 
 def t_NUM(t):
     r'\d+'
@@ -32,7 +33,7 @@ def t_NUM(t):
     return t
 
 def t_SIMB(t):
-    r'[a-zA-Z_+=\*\-][a-zA-Z0-9_+\*\-]*'
+    r'[a-zA-Z_+=\*\-/][a-zA-Z0-9_+\*\-]*'
     t.type = reserved.get(t.value,'SIMB')    # Check for reserved words
     return t
 # anything that you put inside a single quote is text
